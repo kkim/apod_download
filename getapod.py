@@ -8,38 +8,36 @@ import re
 WALL_PAPER_FILE_NAME = './apod.jpg'
 APOD_URL = "http://antwrp.gsfc.nasa.gov/apod/astropix.html"
 
-def get_image_file_name_from_url(url):
-    try:
-        apodhtml = urllib2.urlopen(url).read()
-    except IOError as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
-        print "Internet connection problem?"
-        sys.exit()
-
+def get_image_file_name_from_url(apodhtml):
     matches = re.search('href..(image.*[jpg\|png\|gif])',apodhtml)
     image_file_name = matches and matches.group(1)
     #print 'matches', image_file_name
     return image_file_name
 
 def get_youtube_id(url):
+    matches = re.search('youtube.com/embed/([0-9a-zA-Z]+)?',apodhtml)
+    youtube_id = matches and matches.group(1)
+    #print 'matches', youtube_id
+    return youtube_id
+
+
+if __name__ == '__main__':
     try:
-        apodhtml = urllib2.urlopen(url).read()
+        apodhtml = urllib2.urlopen(APOD_URL).read()
     except IOError as e:
         print "I/O error({0}): {1}".format(e.errno, e.strerror)
         print "Internet connection problem?"
         sys.exit()
 
-    matches = re.search('youtube.com/embed/([0-9a-zA-Z]+)?',apodhtml)
-    youtube_id = matches and matches.group(1)
-    print 'matches', youtube_id
-    return youtube_id
-
-imgfile = get_image_file_name_from_url(APOD_URL)
-if imgfile:
-    urllib.urlretrieve("http://antwrp.gsfc.nasa.gov/apod/"+imgfile,WALL_PAPER_FILE_NAME)
-else:
-    print 'No image file found'    
-    youtube_id = get_youtube_id(APOD_URL)
+    imgfile = get_image_file_name_from_url(apodhtml)
+    if imgfile:
+        print "Downloading today's picture"
+        urllib.urlretrieve("http://antwrp.gsfc.nasa.gov/apod/"+imgfile,WALL_PAPER_FILE_NAME)
+        sys.exit()
+    
+    youtube_id = get_youtube_id(apodhtml)
     if youtube_id:
+        print "Downloading today's youtube thumbnail"
         urllib.urlretrieve("https://img.youtube.com/vi/"+youtube_id+'/0.jpg',WALL_PAPER_FILE_NAME)
+        sys.exit()
         
