@@ -5,7 +5,8 @@ import urllib
 import urllib2
 import re
 
-WALL_PAPER_FILE_NAME = './apod.jpg'
+WALLPAPER_FILE_NAME = './apod.jpg'
+TEMPORARY_FILE_NAME = './tmp.jpg'
 APOD_URL = "http://antwrp.gsfc.nasa.gov/apod/astropix.html"
 
 def get_image_file_name_from_apodhtml(apodhtml):
@@ -21,6 +22,7 @@ def get_youtube_id_from_apodhtml(apodhtml):
     return youtube_id
 
 
+import shutil
 if __name__ == '__main__':
     try:
         apodhtml = urllib2.urlopen(APOD_URL).read()
@@ -32,12 +34,14 @@ if __name__ == '__main__':
     imgfile = get_image_file_name_from_apodhtml(apodhtml)
     if imgfile:
         print "Downloading today's picture"
-        urllib.urlretrieve("http://antwrp.gsfc.nasa.gov/apod/"+imgfile,WALL_PAPER_FILE_NAME)
+        urllib.urlretrieve("http://antwrp.gsfc.nasa.gov/apod/"+imgfile,TEMPORARY_FILE_NAME)
+        shutil.move(TEMPORARY_FILE_NAME, WALLPAPER_FILE_NAME)
         sys.exit()
     
     youtube_id = get_youtube_id_from_apodhtml(apodhtml)
     if youtube_id:
         print "Downloading today's youtube thumbnail"
-        urllib.urlretrieve("https://img.youtube.com/vi/"+youtube_id+'/0.jpg',WALL_PAPER_FILE_NAME)
+        urllib.urlretrieve("https://img.youtube.com/vi/"+youtube_id+'/0.jpg',TEMPORARY_FILE_NAME)
+        shutil.move(TEMPORARY_FILE_NAME, WALLPAPER_FILE_NAME)
         sys.exit()
         
